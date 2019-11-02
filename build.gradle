@@ -40,19 +40,19 @@ javafx {
 
 // Define the main class for the application
 application {
-    mainClassName = "$moduleName/io.github.xkerman.App"
+    mainClassName = "$moduleName/$mainClass"
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-    mergedModuleName = 'io.github.xkerman.mergedmodule'
+    mergedModuleName = project.mergedModuleName
     launcher {
         name = "io.github.xkerman.App"
         jvmArgs = [
-            '--add-exports', "javafx.web/com.sun.webkit.dom=io.github.xkerman.mergedmodule",
+            '--add-exports', "javafx.web/com.sun.webkit.dom=${project.mergedModuleName}",
             '-verbose:gc',
             '-Xmn512M',
             '-Xmx1G',
