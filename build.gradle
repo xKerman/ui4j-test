@@ -15,6 +15,7 @@ plugins {
 
     id 'org.openjfx.javafxplugin' version '0.0.8'
     id 'org.beryx.jlink' version '2.16.0'
+    id 'org.javamodularity.moduleplugin' version '1.5.0'
 }
 
 repositories {
@@ -30,24 +31,11 @@ dependencies {
 
     // https://mvnrepository.com/artifact/io.webfolder/ui4j-webkit
     compile group: 'io.webfolder', name: 'ui4j-webkit', version: '4.0.0'
-
-    // https://mvnrepository.com/artifact/org.openjfx/javafx-web
-    compile group: 'org.openjfx', name: 'javafx-controls', version: '12.0.2'
-    compile group: 'org.openjfx', name: 'javafx-web', version: '12.0.2'
-}
-
-run {
-    // https://discuss.gradle.org/t/gradle-doesnt-add-modules-to-module-path-during-compile/27382/2
-    doFirst {
-        jvmArgs = [
-            '--module-path', classpath.asPath,
-        ]
-    }
 }
 
 javafx {
     version = '12.0.2'
-    modules = [ 'javafx.controls', 'javafx.web' ]
+    modules = ['javafx.controls', 'javafx.web']
 }
 
 // Define the main class for the application
@@ -55,18 +43,26 @@ application {
     mainClassName = "$moduleName/io.github.xkerman.App"
 }
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    mergedModuleName = 'io.github.xkerman.mergedmodule'
     launcher {
-        name = 'io.github.xkerman'
+        name = "io.github.xkerman.App"
+        jvmArgs = [
+            '--add-exports', "javafx.web/com.sun.webkit.dom=io.github.xkerman.mergedmodule",
+            '-verbose:gc',
+            '-Xmn512M',
+            '-Xmx1G',
+            '-Xms1G',
+            '-XX:MetaspaceSize=128M',
+        ]
     }
-}
-
-task jdeps(type: Exec, dependsOn: compileJava) {
-    commandLine(
-        "jdeps",
-        "--module-path", compileJava.classpath.asPath,
-        "-s",
-        compileJava.destinationDir
-    )
+    addExtraDependencies('javafx')
+    customImage {
+        jdkModules = ['jdk.crypto.cryptoki', 'java.compiler']
+        jdkAdditive = true
+    }
 }

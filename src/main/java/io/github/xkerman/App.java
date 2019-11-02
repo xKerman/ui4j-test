@@ -13,14 +13,9 @@ public class App {
             return;
         }
 
-        System.out.printf("hello, world, %s\n", args);
-
         try {
-
             BrowserEngine engine = BrowserFactory.getWebKit();
-            Page page = engine.navigate("http://localhost:8000/index.html");
-            // Page page = engine.navigate(args[0]);
-
+            Page page = engine.navigate(args[0]);
             page.show();
         } catch (Exception e) {
             e.printStackTrace();
